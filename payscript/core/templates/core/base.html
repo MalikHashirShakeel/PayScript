@@ -1,0 +1,233 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Konnect Komputers - Invoice Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'core/logo.png' %}" type="image/png">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% tailwind_css %}
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --dark: #111827;
+            --darker: #0a0f1a;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #4f46e5, #10b981);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-blur {
+            backdrop-filter: blur(8px);
+            background-color: rgba(17, 24, 39, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .footer-blur {
+            backdrop-filter: blur(8px);
+            background-color: rgba(17, 24, 39, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .message-transition {
+            transition: all 0.3s ease;
+        }
+
+        .nav-link {
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0%;
+            height: 2px;
+            background: linear-gradient(to right, #4f46e5, #10b981);
+            transition: width 0.3s ease-in-out;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .glow-hover:hover {
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .rounded-logo {
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Navbar -->
+<nav class="nav-blur text-white shadow-xl p-4 flex justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center space-x-3 animate__animated animate__fadeInLeft">
+        <img src="{% static 'core/logo.png' %}" alt="Logo" class="h-10 w-10 rounded-logo shadow-md">
+        <h1 class="text-2xl font-bold gradient-text tracking-wide">KONNECT KOMPUTERS</h1>
+    </div>
+
+    {% if request.user.is_authenticated %}
+    <ul class="hidden md:flex gap-8 items-center animate__animated animate__fadeInRight">
+        <li>
+            <a href="{% url 'dashboard' %}" class="nav-link flex items-center space-x-1 hover:text-indigo-300 transition-colors duration-200 group">
+                <i class="fas fa-tachometer-alt w-5 text-center"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'about' %}" class="nav-link flex items-center space-x-1 hover:text-blue-300 transition-colors duration-200 group">
+                <i class="fas fa-info-circle w-5 text-center"></i>
+                <span>About</span>
+            </a>
+        </li>
+        <li>
+            <form method="post" action="{% url 'logout' %}" onsubmit="return confirmLogout(event);">
+                {% csrf_token %}
+                <button type="submit" class="nav-link flex items-center space-x-1 hover:text-red-300 transition-colors duration-200 group">
+                    <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                    <span>Logout</span>
+                </button>
+            </form>
+        </li>
+    </ul>
+    {% endif %}
+
+    <button class="md:hidden text-2xl">
+        <i class="fas fa-bars"></i>
+    </button>
+</nav>
+
+<!-- Flash Messages -->
+{% if messages %}
+<div class="fixed top-20 right-4 z-50 space-y-3 w-full max-w-xs animate__animated animate__fadeInRight">
+  {% for message in messages %}
+    <div class="px-4 py-3 rounded-lg shadow-xl text-sm font-medium message-transition
+      {% if message.tags == 'success' %} bg-gradient-to-r from-emerald-600 to-emerald-700 text-white
+      {% elif message.tags == 'error' %} bg-gradient-to-r from-red-600 to-red-700 text-white
+      {% elif message.tags == 'warning' %} bg-gradient-to-r from-amber-500 to-amber-600 text-gray-900
+      {% else %} bg-gradient-to-r from-gray-600 to-gray-700 text-white
+      {% endif %}">
+      <div class="flex justify-between items-center">
+        <span>{{ message }}</span>
+        <button onclick="this.parentElement.parentElement.remove()" class="ml-2">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Main content -->
+<main class="flex-grow">
+    {% block content %}
+    {% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="footer-blur text-gray-300 text-center p-8 mt-12 animate__animated animate__fadeInUp">
+    <div class="container mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+            <div class="flex items-center space-x-3">
+                <img src="{% static 'core/logo.png' %}" alt="Logo" class="h-8 w-8 rounded-logo shadow-md">
+                <span class="font-bold gradient-text text-lg">KONNECT KOMPUTERS</span>
+            </div>
+            <p class="text-sm italic">Premium Invoice Management System</p>
+            <div class="flex space-x-5 text-xl">
+                <a href="https://www.facebook.com/share/16V3h1Uzd5/" target="_blank" class="text-gray-400 hover:text-blue-400 transition-colors duration-200">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="mailto:konnectkomputers@gmail.com" class="text-gray-400 hover:text-red-400 transition-colors duration-200">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="tel:03333025266" class="text-gray-400 hover:text-green-400 transition-colors duration-200">
+                    <i class="fas fa-phone-alt"></i>
+                </a>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-6 pt-4 text-xs text-gray-400">
+            &copy; {{ now|date:"Y" }} Konnect Komputers. All rights reserved.
+        </div>
+    </div>
+</footer>
+
+<!-- Mobile menu -->
+<div id="mobileMenu" class="fixed inset-0 z-40 bg-gray-900/90 backdrop-blur-sm hidden">
+    <div class="absolute top-4 right-4">
+        <button id="closeMobileMenu" class="text-3xl text-white p-2">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="h-full flex flex-col items-center justify-center space-y-8">
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="text-2xl text-white hover:text-indigo-300 transition">Dashboard</a>
+        <a href="{% url 'about' %}" class="text-2xl text-white hover:text-blue-300 transition">About</a>
+        <form method="post" action="{% url 'logout' %}" onsubmit="return confirmLogout(event);">
+            {% csrf_token %}
+            <button type="submit" class="text-2xl text-white hover:text-red-300 transition">
+                Logout
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Scripts -->
+<script>
+    // Mobile menu toggle
+    document.querySelector('nav button').addEventListener('click', function () {
+        document.getElementById('mobileMenu').classList.remove('hidden');
+    });
+
+    document.getElementById('closeMobileMenu').addEventListener('click', function () {
+        document.getElementById('mobileMenu').classList.add('hidden');
+    });
+
+    // Auto-dismiss messages after 5 seconds
+    setTimeout(function () {
+        document.querySelectorAll('.message-transition').forEach(function (el) {
+            el.style.opacity = '0';
+            setTimeout(function () {
+                el.remove();
+            }, 300);
+        });
+    }, 5000);
+
+    // Logout confirmation
+    function confirmLogout(event) {
+        event.preventDefault();
+        if (confirm('Are you sure you want to logout?')) {
+            event.target.submit();
+        }
+    }
+</script>
+
+</body>
+</html>

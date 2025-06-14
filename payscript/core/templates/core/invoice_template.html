@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice {{ invoice.invoice_number }}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 10mm;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 12px;
+      color: #333;
+      line-height: 1.5;
+    }
+    .container {
+      width: 100%;
+      max-width: 100%;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #8b5cf6;
+      padding-bottom: 15px;
+    }
+    .logo-container {
+      width: 150px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .logo {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      margin-top: 3px;
+    }
+    .company-info {
+      text-align: right;
+    }
+    .company-name {
+      color: #4c1d95;
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .invoice-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #8b5cf6;
+      margin: 15px 0;
+      text-transform: uppercase;
+    }
+
+    .meta-section {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: 10px;
+    }
+    .meta-block {
+      flex: 1;
+    }
+    .meta-label {
+      font-weight: bold;
+      color: #4c1d95;
+      margin-right: 5px;
+      white-space: nowrap;
+    }
+    .meta-value {
+      display: inline;
+      word-break: break-word;
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    .items-table th {
+      background: #8b5cf6;
+      color: white;
+      text-align: left;
+      padding: 8px;
+      font-weight: bold;
+    }
+    .items-table td {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+    }
+    .items-table tr:nth-child(even) {
+      background-color: #f5f5f5;
+    }
+
+    .summary {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .summary-table {
+      width: 300px;
+      border-collapse: collapse;
+    }
+    .summary-table td {
+      padding: 8px;
+      border: 1px solid #ddd;
+    }
+    .summary-table tr:last-child td {
+      font-weight: bold;
+      background-color: #fae8ff;
+      color: #701a75;
+    }
+
+    .terms-conditions {
+      margin-top: 25px;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+    .terms-conditions h4 {
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: #8b5cf6;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 3px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      padding-top: 10px;
+      border-top: 1px solid #ddd;
+      font-size: 10px;
+      text-align: center;
+      color: #666;
+    }
+    .thank-you {
+      font-size: 14px;
+      color: #8b5cf6;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .checked-yes {
+      color: green;
+      font-weight: bold;
+    }
+    .checked-no {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <div class="company-name">KONNECT KOMPUTERS</div>
+        <div>{{ company.address }}</div>
+        <div>Phone: {{ company.phone }}</div>
+        <div>Email: {{ company.email }}</div>
+        <div>Facebook: {{ company.social.facebook }}</div>
+      </div>
+      <div class="logo-container">
+        <img src="{{ request.build_absolute_uri }}/static/core/logo.png" alt="Konnect Komputers Logo" class="logo">
+      </div>
+    </div>
+
+    <!-- Invoice Title -->
+    <div class="invoice-title">SALES INVOICE</div>
+
+    <!-- Invoice Info -->
+    <div class="meta-section">
+      <div class="meta-block">
+        <div><span class="meta-label">Invoice #:</span><span class="meta-value">{{ invoice.invoice_number }}</span></div>
+        <div><span class="meta-label">Date:</span><span class="meta-value">{{ date }}</span></div>
+        <div><span class="meta-label">Time:</span><span class="meta-value">{{ time }}</span></div>
+      </div>
+      <div class="meta-block">
+        <div><span class="meta-label">Customer:</span><span class="meta-value">{{ invoice.customer.name }}</span></div>
+        <div><span class="meta-label">Phone:</span><span class="meta-value">{{ invoice.customer.phone }}</span></div>
+        <div><span class="meta-label">Address:</span><span class="meta-value">{{ invoice.customer.address }}</span></div>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>SR#</th>
+          <th>Description</th>
+          <th>Qty</th>
+          <th>Rate</th>
+          <th>Warranty</th>
+          <th>Checked</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td>{{ product.serial_no }}</td>
+          <td>{{ product.item }}</td>
+          <td>{{ product.quantity }}</td>
+          <td>PKR {{ product.rate }}</td>
+          <td>{{ product.warranty|default:"-" }}</td>
+          <td class="{% if product.checked %}checked-yes{% else %}checked-no{% endif %}">
+            {{ product.checked|yesno:"Yes,No" }}
+          </td>
+          <td>PKR {{ product.item_total }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Summary -->
+    <div class="summary">
+      <table class="summary-table">
+        <tr>
+          <td>Sub Total:</td>
+          <td>PKR {{ invoice.subtotal }}</td>
+        </tr>
+        <tr>
+          <td>Adjustments:</td>
+          <td>PKR {{ invoice.adjustments }}</td>
+        </tr>
+        <tr>
+          <td>Total Amount:</td>
+          <td>PKR {{ invoice.receivable }}</td>
+        </tr>
+        <tr>
+          <td>Amount Received:</td>
+          <td>PKR {{ invoice.received }}</td>
+        </tr>
+        <tr>
+          <td>Balance Due:</td>
+          <td>PKR {{ invoice.final_balance }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Terms & Conditions -->
+    <div class="terms-conditions">
+      <h4>TERMS & CONDITIONS</h4>
+      <p>{{ invoice.terms|linebreaksbr }}</p>
+    </div>
+
+    <!-- Note -->
+    <div class="terms-conditions">
+      <h4>NOTE</h4>
+      <p>{{ invoice.note }}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="thank-you">THANK YOU FOR YOUR BUSINESS!</div>
+      <div>For any queries, please contact us at {{ company.phone }} or {{ company.email }}</div>
+    </div>
+
+  </div>
+</body>
+</html>
