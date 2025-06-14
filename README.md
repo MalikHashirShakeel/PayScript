@@ -1,8 +1,3 @@
-Absolutely! Here's the full **README.md** file formatted and ready to be copied and dropped directly into your project root 📄👇
-
----
-
-````markdown
 # 🧾 PayScript
 
 **PayScript** is a Django-based application designed to streamline product management for multiple customers and generate clean, PDF-ready invoices for each customer using **WeasyPrint**. It incorporates modern styling with **Tailwind CSS** to offer a responsive and visually pleasing interface.
@@ -191,7 +186,4 @@ Happy Building! 🔨🤖🔧
 
 ---
 
-```
-
 Let me know if you'd like me to automatically add badges, GitHub Actions, `.env` templates, or deployment instructions (Heroku, Vercel, Render, etc.) 🚀
-```
